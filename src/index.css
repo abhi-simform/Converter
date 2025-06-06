@@ -1,11 +1,51 @@
 :root {
+  --color-bg-main: #242424;
+  --color-bg-gradient-from: #f5f7fa;
+  --color-bg-gradient-to: #c3cfe2;
+  --color-text-main: rgba(255, 255, 255, 0.87);
+  --color-link: #646cff;
+  --color-link-hover: #535bf2;
+  --color-header: #1a1a1a;
+  --color-header-gradient-from: #667eea;
+  --color-header-gradient-to: #764ba2;
+  --color-subtext: #666;
+  --color-border: #d1d5db;
+  --color-border-hover: #667eea;
+  --color-border-active: #667eea;
+  --color-bg-dropzone: #fafafa;
+  --color-bg-dropzone-hover: #f8faff;
+  --color-bg-dropzone-active: #f0f4ff;
+  --color-bg-fileinfo: #f8faff;
+  --color-border-fileinfo: #e5e7eb;
+  --color-fileicon: #667eea;
+  --color-filename: #374151;
+  --color-filesize: #6b7280;
+  --color-reset-btn-bg: #f3f4f6;
+  --color-reset-btn-border: #d1d5db;
+  --color-reset-btn-hover: #e5e7eb;
+  --color-status-bg: #fff;
+  --color-status-border: #e5e7eb;
+  --color-status-shadow: rgba(0, 0, 0, 0.1);
+  --color-status-success: #10b981;
+  --color-status-error: #ef4444;
+  --color-status-progress: #667eea;
+  --color-status-message: #374151;
+  --color-progress-bg: #e5e7eb;
+  --color-progress-fill-from: #667eea;
+  --color-progress-fill-to: #764ba2;
+  --color-download-btn-bg-from: #667eea;
+  --color-download-btn-bg-to: #764ba2;
+  --color-download-btn-shadow: rgba(102, 126, 234, 0.3);
+  --color-download-btn-hover-shadow: rgba(102, 126, 234, 0.4);
+  --color-download-btn-text: #fff;
+
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: var(--color-text-main);
+  background-color: var(--color-bg-main);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -15,11 +55,11 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--color-link);
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: var(--color-link-hover);
 }
 
 body {
@@ -43,27 +83,14 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--color-header);
   cursor: pointer;
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: var(--color-link);
 }
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
 }

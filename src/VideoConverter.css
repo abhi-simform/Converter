@@ -13,9 +13,9 @@
 .converter-header h1 {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--color-header);
   margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-header-gradient-from) 0%, var(--color-header-gradient-to) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -23,7 +23,7 @@
 
 .converter-header p {
   font-size: 1.1rem;
-  color: #666;
+  color: var(--color-subtext);
   margin: 0;
 }
 
@@ -34,23 +34,23 @@
 }
 
 .dropzone {
-  border: 2px dashed #d1d5db;
+  border: 2px dashed var(--color-border);
   border-radius: 12px;
   padding: 3rem 2rem;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: #fafafa;
+  background: var(--color-bg-dropzone);
 }
 
 .dropzone:hover {
-  border-color: #667eea;
-  background: #f8faff;
+  border-color: var(--color-border-hover);
+  background: var(--color-bg-dropzone-hover);
 }
 
 .dropzone.active {
-  border-color: #667eea;
-  background: #f0f4ff;
+  border-color: var(--color-border-active);
+  background: var(--color-bg-dropzone-active);
   transform: scale(1.02);
 }
 
@@ -63,26 +63,26 @@
 .upload-icon {
   width: 3rem;
   height: 3rem;
-  color: #667eea;
+  color: var(--color-fileicon);
   margin-bottom: 1rem;
 }
 
 .dropzone h3 {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #374151;
+  color: var(--color-filename);
   margin-bottom: 0.5rem;
 }
 
 .dropzone p {
   font-size: 1rem;
-  color: #6b7280;
+  color: var(--color-filesize);
   margin-bottom: 0.5rem;
 }
 
 .dropzone small {
   font-size: 0.875rem;
-  color: #9ca3af;
+  color: var(--color-border);
 }
 
 .file-info {
@@ -90,8 +90,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  background: #f8faff;
-  border: 1px solid #e5e7eb;
+  background: var(--color-bg-fileinfo);
+  border: 1px solid var(--color-border-fileinfo);
   border-radius: 12px;
 }
 
@@ -104,43 +104,43 @@
 .file-icon {
   width: 2.5rem;
   height: 2.5rem;
-  color: #667eea;
+  color: var(--color-fileicon);
 }
 
 .file-details h3 {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #374151;
+  color: var(--color-filename);
   margin: 0 0 0.25rem 0;
 }
 
 .file-details p {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--color-filesize);
   margin: 0;
 }
 
 .reset-button {
   padding: 0.5rem 1rem;
-  background: #f3f4f6;
-  border: 1px solid #d1d5db;
+  background: var(--color-reset-btn-bg);
+  border: 1px solid var(--color-reset-btn-border);
   border-radius: 6px;
   font-size: 0.875rem;
-  color: #374151;
+  color: var(--color-filename);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .reset-button:hover {
-  background: #e5e7eb;
+  background: var(--color-reset-btn-hover);
 }
 
 .status-section {
   padding: 1.5rem;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--color-status-bg);
+  border: 1px solid var(--color-status-border);
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px var(--color-status-shadow);
 }
 
 .status-indicator {
@@ -156,15 +156,15 @@
 }
 
 .status-icon.success {
-  color: #10b981;
+  color: var(--color-status-success);
 }
 
 .status-icon.error {
-  color: #ef4444;
+  color: var(--color-status-error);
 }
 
 .status-icon.spinning {
-  color: #667eea;
+  color: var(--color-status-progress);
   animation: spin 1s linear infinite;
 }
 
@@ -180,20 +180,20 @@
 .status-message {
   font-size: 1rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--color-status-message);
 }
 
 .progress-bar {
   width: 100%;
   height: 8px;
-  background: #e5e7eb;
+  background: var(--color-progress-bg);
   border-radius: 4px;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(90deg, var(--color-progress-fill-from) 0%, var(--color-progress-fill-to) 100%);
   border-radius: 4px;
   transition: width 0.3s ease;
 }
@@ -207,20 +207,20 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--color-download-btn-bg-from) 0%, var(--color-download-btn-bg-to) 100%);
+  color: var(--color-download-btn-text);
   border: none;
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 12px var(--color-download-btn-shadow);
 }
 
 .download-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 20px var(--color-download-btn-hover-shadow);
 }
 
 .download-button:active {

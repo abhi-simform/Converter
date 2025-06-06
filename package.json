@@ -1,5 +1,13 @@
 {
   "name": "converter",
+  "homepage": "https://abhi-simform.github.io/Converter/",
+  "description": "A simple video converter built with React and FFmpeg.",
+  "author": "Abhishek Sawant",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/abhi-simform/Converter.git"
+  },
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -7,11 +15,14 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@ffmpeg/ffmpeg": "^0.12.15",
     "@ffmpeg/util": "^0.12.2",
+    "gh-pages": "^6.3.0",
     "lucide-react": "^0.513.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
