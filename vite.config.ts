@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'favicon.ico', 'apple-touch-icon.png', 'web-app-manifest-192x192.png', 'web-app-manifest-512x512.png'],
+      includeAssets: ['/Converter/favicon.svg', '/Converter/favicon.ico', '/Converter/apple-touch-icon.png', '/Converter/web-app-manifest-192x192.png', '/Converter/web-app-manifest-512x512.png'],
       manifest: {
         name: 'MKV to MP4 Converter',
         short_name: 'MKV2MP4',
@@ -19,17 +19,17 @@ export default defineConfig({
         start_url: '.',
         icons: [
           {
-            src: 'web-app-manifest-192x192.png',
+            src: '/Converter/web-app-manifest-192x192.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'web-app-manifest-512x512.png',
+            src: '/Converter/web-app-manifest-512x512.png',
             sizes: '512x512',
             type: 'image/png'
           },
           {
-            src: 'apple-touch-icon.png',
+            src: '/Converter/apple-touch-icon.png',
             sizes: '180x180',
             type: 'image/png'
           }
