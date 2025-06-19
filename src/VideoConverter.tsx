@@ -11,13 +11,81 @@ interface ConversionProgress {
   progress?: number;
 }
 
+interface FileConversion {
+  file: File;
+  status: 'pending' | 'converting' | 'completed' | 'error';
+  progress: number;
+  downloadUrl?: string;
+  error?: string;
+}
+
+interface OutputFormat {
+  label: string;
+  value: string;
+  description: string;
+  icon: string;
+  recommended?: boolean;
+}
+
+const OUTPUT_FORMATS: OutputFormat[] = [
+  { 
+    label: 'MP4', 
+    value: 'mp4', 
+    description: 'Most compatible format for web and devices',
+    icon: '🎬',
+    recommended: true
+  },
+  { 
+    label: 'WebM', 
+    value: 'webm', 
+    description: 'Optimized for web streaming',
+    icon: '🌐'
+  },
+  { 
+    label: 'MKV', 
+    value: 'mkv', 
+    description: 'High quality container with subtitle support',
+    icon: '📽️'
+  },
+  { 
+    label: 'MOV', 
+    value: 'mov', 
+    description: 'Apple QuickTime format',
+    icon: '🍎'
+  },
+  { 
+    label: 'AVI', 
+    value: 'avi', 
+    description: 'Classic Windows video format',
+    icon: '🖥️'
+  },
+  { 
+    label: 'M4V', 
+    value: 'm4v', 
+    description: 'iTunes compatible format',
+    icon: '🎵'
+  },
+  { 
+    label: 'FLV', 
+    value: 'flv', 
+    description: 'Flash video format',
+    icon: '⚡'
+  },
+  { 
+    label: 'GIF', 
+    value: 'gif', 
+    description: 'Animated image format',
+    icon: '🎞️'
+  },
+];
+
 const VideoConverter: React.FC = () => {
   const [conversionState, setConversionState] = useState<ConversionProgress>({
     phase: 'idle',
-    message: 'Ready for fast MKV to MP4 container conversion'
+    message: 'Ready for fast video conversion'
   });
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [convertedVideoUrl, setConvertedVideoUrl] = useState<string | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<FileConversion[]>([]);
+  const [outputFormat, setOutputFormat] = useState<string>('mp4');
   const ffmpegRef = useRef<FFmpeg | null>(null);
 
   const initializeFFmpeg = async (): Promise<FFmpeg> => {
@@ -40,7 +108,7 @@ const VideoConverter: React.FC = () => {
       setConversionState(prev => ({
         ...prev,
         phase: 'converting',
-        message: `Converting container... ${Math.round(progress * 100)}%`,
+        message: `Converting... ${Math.round(progress * 100)}%`,
         progress: progress * 100
       }));
     });
@@ -55,75 +123,124 @@ const VideoConverter: React.FC = () => {
     }
   };
 
-  const convertVideo = useCallback(async (file: File): Promise<void> => {
+  const convertVideo = useCallback(async (fileConversion: FileConversion): Promise<void> => {
     try {
       const ffmpeg = await initializeFFmpeg();
       
+      // Update file status to converting
+      setUploadedFiles(prev => 
+        prev.map(fc => 
+          fc.file === fileConversion.file 
+            ? { ...fc, status: 'converting', progress: 0 }
+            : fc
+        )
+      );
+
       setConversionState({
         phase: 'converting',
-        message: 'Converting container format (no re-encoding)...',
+        message: `Converting ${fileConversion.file.name} to .${outputFormat}...`,
         progress: 0
       });
 
       // Write input file
-      await ffmpeg.writeFile('input.mkv', await fetchFile(file));
+      const inputName = `input_${Date.now()}.${fileConversion.file.name.split('.').pop()}`;
+      await ffmpeg.writeFile(inputName, await fetchFile(fileConversion.file));
 
-      // Convert MKV to MP4 (stream copy - no re-encoding)
-      await ffmpeg.exec([
-        '-i', 'input.mkv',
-        '-c', 'copy',
+      // Convert to selected format
+      const outputName = `output_${Date.now()}.${outputFormat}`;
+      const args = [
+        '-i', inputName,
+        '-c', outputFormat === 'gif' ? 'gif' : 'copy',
         '-movflags', '+faststart',
-        'output.mp4'
-      ]);
+        outputName
+      ];
+
+      if (outputFormat === 'gif') {
+        args.splice(3, 2); // Remove '-c', 'copy' for GIF
+      }
+
+      await ffmpeg.exec(args);
 
       // Read output file
-      const outputData = await ffmpeg.readFile('output.mp4');
-      const outputBlob = new Blob([outputData], { type: 'video/mp4' });
+      const outputData = await ffmpeg.readFile(outputName);
+      const mimeType = outputFormat === 'gif' ? 'image/gif' : `video/${outputFormat}`;
+      const outputBlob = new Blob([outputData], { type: mimeType });
       const outputUrl = URL.createObjectURL(outputBlob);
 
-      setConvertedVideoUrl(outputUrl);
-      setConversionState({
-        phase: 'completed',
-        message: 'Video converted successfully!',
-        progress: 100
-      });
+      // Update file status to completed
+      setUploadedFiles(prev => 
+        prev.map(fc => 
+          fc.file === fileConversion.file 
+            ? { ...fc, status: 'completed', progress: 100, downloadUrl: outputUrl }
+            : fc
+        )
+      );
 
       // Clean up
-      await ffmpeg.deleteFile('input.mkv');
-      await ffmpeg.deleteFile('output.mp4');
+      await ffmpeg.deleteFile(inputName);
+      await ffmpeg.deleteFile(outputName);
+
+      // Check if all files are completed
+      const allCompleted = uploadedFiles.every(fc => 
+        fc.file === fileConversion.file || fc.status === 'completed' || fc.status === 'error'
+      );
+      
+      if (allCompleted) {
+        setConversionState({
+          phase: 'completed',
+          message: 'All conversions completed!',
+          progress: 100
+        });
+      }
 
     } catch (error) {
       console.error('Conversion failed:', error);
-      setConversionState({
-        phase: 'error',
-        message: 'Conversion failed. Please try again with a different file.'
-      });
+      setUploadedFiles(prev => 
+        prev.map(fc => 
+          fc.file === fileConversion.file 
+            ? { ...fc, status: 'error', error: 'Conversion failed' }
+            : fc
+        )
+      );
     }
-  }, []);
+  }, [outputFormat, uploadedFiles]);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    if (file) {
-      setUploadedFile(file);
-      setConvertedVideoUrl(null);
-      await convertVideo(file);
+    // Limit to 5 files maximum
+    const currentCount = uploadedFiles.length;
+    const availableSlots = 5 - currentCount;
+    const filesToProcess = acceptedFiles.slice(0, availableSlots);
+    
+    const newFiles: FileConversion[] = filesToProcess.map(file => ({
+      file,
+      status: 'pending',
+      progress: 0
+    }));
+
+    setUploadedFiles(prev => [...prev, ...newFiles]);
+
+    // Convert files one by one
+    for (const fileConversion of newFiles) {
+      await convertVideo(fileConversion);
     }
-  }, [convertVideo]);
+  }, [convertVideo, uploadedFiles.length]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'video/*': ['.mkv']
+      'video/*': ['.mkv', '.avi', '.mov', '.mp4', '.webm', '.flv', '.m4v']
     },
-    multiple: false,
+    multiple: true,
+    maxFiles: 5,
     disabled: conversionState.phase === 'loading' || conversionState.phase === 'converting'
   });
 
-  const downloadVideo = () => {
-    if (convertedVideoUrl && uploadedFile) {
+  const downloadVideo = (fileConversion: FileConversion) => {
+    if (fileConversion.downloadUrl) {
+      const ext = outputFormat;
       const link = document.createElement('a');
-      link.href = convertedVideoUrl;
-      link.download = uploadedFile.name.replace(/\.mkv$/i, '.mp4');
+      link.href = fileConversion.downloadUrl;
+      link.download = fileConversion.file.name.replace(/\.[^.]+$/, `.${ext}`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -131,15 +248,18 @@ const VideoConverter: React.FC = () => {
   };
 
   const resetConverter = () => {
-    setUploadedFile(null);
-    setConvertedVideoUrl(null);
+    // Revoke all download URLs
+    uploadedFiles.forEach(fc => {
+      if (fc.downloadUrl) {
+        URL.revokeObjectURL(fc.downloadUrl);
+      }
+    });
+    
+    setUploadedFiles([]);
     setConversionState({
       phase: 'idle',
-      message: 'Ready for fast MKV to MP4 container conversion'
+      message: 'Ready for fast video conversion'
     });
-    if (convertedVideoUrl) {
-      URL.revokeObjectURL(convertedVideoUrl);
-    }
   };
 
   const getStatusIcon = () => {
@@ -159,12 +279,36 @@ const VideoConverter: React.FC = () => {
   return (
     <div className="video-converter">
       <div className="converter-header">
-        <h1>MKV to MP4 Converter</h1>
-        <p>Fast container conversion - no re-encoding required</p>
+        <h1>Video Converter</h1>
+        <p>Fast container conversion - supports multiple formats</p>
       </div>
 
       <div className="converter-main">
-        {!uploadedFile ? (
+        <div className="format-selection">
+          <label className="format-selection-label">Choose output format:</label>
+          <div className="format-grid">
+            {OUTPUT_FORMATS.map(fmt => (
+              <label key={fmt.value} className={`format-option ${outputFormat === fmt.value ? 'selected' : ''} ${fmt.recommended ? 'recommended' : ''}`}>
+                <input
+                  type="radio"
+                  name="output-format"
+                  value={fmt.value}
+                  checked={outputFormat === fmt.value}
+                  onChange={e => setOutputFormat(e.target.value)}
+                  className="format-input"
+                  disabled={conversionState.phase === 'loading' || conversionState.phase === 'converting'}
+                />
+                <div className="format-icon">{fmt.icon}</div>
+                <div className="format-info">
+                  <h4 className="format-name">{fmt.label}</h4>
+                  <p className="format-description">{fmt.description}</p>
+                </div>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {uploadedFiles.length === 0 ? (
           <div
             {...getRootProps()}
             className={`dropzone ${isDragActive ? 'active' : ''} ${
@@ -173,21 +317,75 @@ const VideoConverter: React.FC = () => {
           >
             <input {...getInputProps()} />
             <Upload className="upload-icon" />
-            <h3>Drop your MKV file here</h3>
+            <h3>Drop your video files here</h3>
             <p>or click to browse files</p>
-            <small>Only .mkv files are supported</small>
+            <small>Up to 5 files supported (.mkv, .avi, .mov, .mp4, .webm, .flv, .m4v)</small>
           </div>
         ) : (
-          <div className="file-info">
-            <div className="file-details">
-              <FileVideo className="file-icon" />
-              <div>
-                <h3>{uploadedFile.name}</h3>
-                <p>{(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB</p>
+          <div className="files-list">
+            {uploadedFiles.map((fileConversion, index) => (
+              <div key={index} className="file-item">
+                <div className="file-info">
+                  <div className="file-details">
+                    <FileVideo className="file-icon" />
+                    <div>
+                      <h3>{fileConversion.file.name}</h3>
+                      <p>{(fileConversion.file.size / (1024 * 1024)).toFixed(2)} MB</p>
+                    </div>
+                  </div>
+                  <div className="file-status">
+                    {fileConversion.status === 'pending' && <span>Pending</span>}
+                    {fileConversion.status === 'converting' && (
+                      <div className="converting-status">
+                        <Loader2 className="status-icon spinning" />
+                        <span>Converting...</span>
+                      </div>
+                    )}
+                    {fileConversion.status === 'completed' && (
+                      <div className="completed-status">
+                        <CheckCircle className="status-icon success" />
+                        <button 
+                          onClick={() => downloadVideo(fileConversion)} 
+                          className="download-button-small"
+                        >
+                          <Download className="download-icon" />
+                          Download
+                        </button>
+                      </div>
+                    )}
+                    {fileConversion.status === 'error' && (
+                      <div className="error-status">
+                        <AlertCircle className="status-icon error" />
+                        <span>Error</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {fileConversion.status === 'converting' && (
+                  <div className="progress-bar">
+                    <div 
+                      className="progress-fill" 
+                      style={{ width: `${fileConversion.progress}%` }}
+                    />
+                  </div>
+                )}
               </div>
-            </div>
-            <button onClick={resetConverter} className="reset-button">
-              Upload New File
+            ))}
+            
+            {uploadedFiles.length < 5 && (
+              <div
+                {...getRootProps()}
+                className={`dropzone-small ${isDragActive ? 'active' : ''}`}
+                style={{ marginTop: '1rem' }}
+              >
+                <input {...getInputProps()} />
+                <Upload className="upload-icon-small" />
+                <span>Add more files (max 5)</span>
+              </div>
+            )}
+            
+            <button onClick={resetConverter} className="reset-button" style={{ marginTop: '1rem' }}>
+              Clear All Files
             </button>
           </div>
         )}
@@ -207,15 +405,6 @@ const VideoConverter: React.FC = () => {
             </div>
           )}
         </div>
-
-        {conversionState.phase === 'completed' && convertedVideoUrl && (
-          <div className="download-section">
-            <button onClick={downloadVideo} className="download-button">
-              <Download className="download-icon" />
-              Download MP4
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

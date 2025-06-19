@@ -1,5 +1,5 @@
 .video-converter {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
@@ -7,7 +7,7 @@
 
 .converter-header {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
 .converter-header h1 {
@@ -153,6 +153,7 @@
 .status-icon {
   width: 1.25rem;
   height: 1.25rem;
+  color: var(--color-fileicon);
 }
 
 .status-icon.success {
@@ -232,6 +233,181 @@
   height: 1.125rem;
 }
 
+/* Multi-file support styles */
+.files-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.file-item {
+  background: var(--color-bg-fileinfo);
+  border: 1px solid var(--color-border-fileinfo);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.file-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.file-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.converting-status, .completed-status, .error-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.download-button-small {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: linear-gradient(135deg, var(--color-download-btn-bg-from) 0%, var(--color-download-btn-bg-to) 100%);
+  color: var(--color-download-btn-text);
+  border: none;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.download-button-small:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px var(--color-download-btn-shadow);
+}
+
+.dropzone-small {
+  border: 1px dashed var(--color-border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: var(--color-bg-dropzone);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.dropzone-small:hover {
+  border-color: var(--color-border-hover);
+  background: var(--color-bg-dropzone-hover);
+}
+
+.dropzone-small.active {
+  border-color: var(--color-border-active);
+  background: var(--color-bg-dropzone-active);
+}
+
+.upload-icon-small {
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-fileicon);
+}
+
+/* Format selection styles */
+
+.format-selection-label {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-filename);
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.format-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.format-option {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: var(--color-status-bg);
+  position: relative;
+}
+
+.format-option:hover {
+  border-color: var(--color-border-hover);
+  background: var(--color-bg-dropzone-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.format-option.selected {
+  border-color: var(--color-fileicon);
+  background: var(--color-bg-dropzone-active);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.format-option.recommended::after {
+  content: 'Recommended';
+  position: absolute;
+  top: -8px;
+  right: 8px;
+  background: linear-gradient(135deg, var(--color-header-gradient-from), var(--color-header-gradient-to));
+  color: white;
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.format-icon {
+  font-size: 1.5rem;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+}
+
+.format-info {
+  flex: 1;
+}
+
+.format-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-filename);
+  margin: 0 0 0.25rem 0;
+}
+
+.format-description {
+  font-size: 0.75rem;
+  color: var(--color-filesize);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.format-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 1024px) {
+  .format-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .video-converter {
     padding: 1rem;
@@ -249,5 +425,19 @@
     flex-direction: column;
     gap: 1rem;
     text-align: center;
+  }
+  
+  .format-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .format-option {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .format-grid {
+    grid-template-columns: 1fr;
   }
 }
