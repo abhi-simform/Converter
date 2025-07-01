@@ -1,9 +1,8 @@
 import VideoConverter from './VideoConverter'
-import './App.css'
 
 function App() {
   return (
-    <div className="app">
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-blue-200 flex items-center justify-center">
       <VideoConverter />
     </div>
   )
