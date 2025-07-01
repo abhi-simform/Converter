@@ -24,6 +24,7 @@ interface OutputFormat {
   description: string;
   icon: string;
   recommended?: boolean;
+  audioOnly?: boolean;
 }
 
 const OUTPUT_FORMATS: OutputFormat[] = [
@@ -59,12 +60,6 @@ const OUTPUT_FORMATS: OutputFormat[] = [
     icon: '🖥️'
   },
   { 
-    label: 'M4V', 
-    value: 'm4v', 
-    description: 'iTunes compatible format',
-    icon: '🎵'
-  },
-  { 
     label: 'FLV', 
     value: 'flv', 
     description: 'Flash video format',
@@ -75,6 +70,13 @@ const OUTPUT_FORMATS: OutputFormat[] = [
     value: 'gif', 
     description: 'Animated image format',
     icon: '🎞️'
+  },
+  { 
+    label: 'MP3', 
+    value: 'mp3', 
+    description: 'Extract audio as MP3 (audio only)',
+    icon: '🎵',
+    audioOnly: true
   },
 ];
 
@@ -147,22 +149,25 @@ const VideoConverter: React.FC = () => {
 
       // Convert to selected format
       const outputName = `output_${Date.now()}.${outputFormat}`;
-      const args = [
-        '-i', inputName,
-        '-c', outputFormat === 'gif' ? 'gif' : 'copy',
-        '-movflags', '+faststart',
-        outputName
-      ];
-
+      let args: string[];
       if (outputFormat === 'gif') {
-        args.splice(3, 2); // Remove '-c', 'copy' for GIF
+        args = ['-i', inputName, outputName];
+      } else if (outputFormat === 'mp3') {
+        args = ['-i', inputName, '-vn', '-acodec', 'libmp3lame', '-q:a', '2', outputName];
+      } else {
+        args = [
+          '-i', inputName,
+          '-c', 'copy',
+          '-movflags', '+faststart',
+          outputName
+        ];
       }
 
       await ffmpeg.exec(args);
 
       // Read output file
+      const mimeType = outputFormat === 'gif' ? 'image/gif' : outputFormat === 'mp3' ? 'audio/mp3' : `video/${outputFormat}`;
       const outputData = await ffmpeg.readFile(outputName);
-      const mimeType = outputFormat === 'gif' ? 'image/gif' : `video/${outputFormat}`;
       const outputBlob = new Blob([outputData], { type: mimeType });
       const outputUrl = URL.createObjectURL(outputBlob);
 
@@ -194,10 +199,18 @@ const VideoConverter: React.FC = () => {
 
     } catch (error) {
       console.error('Conversion failed:', error);
+      let errorMsg = 'Conversion failed';
+      if (error instanceof Error) {
+        errorMsg = error.message + (error.stack ? `\n${error.stack}` : '');
+      } else if (typeof error === 'string') {
+        errorMsg = error;
+      } else if (typeof error === 'object' && error !== null && 'message' in error) {
+        errorMsg = String((error as any).message);
+      }
       setUploadedFiles(prev => 
         prev.map(fc => 
           fc.file === fileConversion.file 
-            ? { ...fc, status: 'error', error: 'Conversion failed' }
+            ? { ...fc, status: 'error', error: errorMsg }
             : fc
         )
       );
@@ -299,6 +312,10 @@ const VideoConverter: React.FC = () => {
                   fmt.recommended 
                     ? 'after:content-["Recommended"] after:absolute after:-top-2 after:right-2 after:bg-gradient-to-r after:from-indigo-400 after:to-purple-500 after:text-white after:text-xs after:font-bold after:px-2 after:py-0.5 after:rounded after:uppercase after:tracking-wider' 
                     : ''
+                } ${
+                  fmt.audioOnly
+                    ? 'after:content-["Audio_only"] after:absolute after:-top-2 after:right-2 after:bg-gradient-to-r after:from-green-400 after:to-blue-500 after:text-white after:text-xs after:font-bold after:px-2 after:py-0.5 after:rounded after:uppercase after:tracking-wider' 
+                    : ''
                 }`}
               >
                 <input
@@ -372,7 +389,14 @@ const VideoConverter: React.FC = () => {
                     {fileConversion.status === 'error' && (
                       <div className="flex items-center gap-2 text-red-500">
                         <AlertCircle className="w-5 h-5" />
-                        <span>Error</span>
+                        <span className="relative group cursor-help">
+                          Error
+                          {fileConversion.error && (
+                            <span className="absolute left-1/2 z-10 mt-2 w-max min-w-[180px] -translate-x-1/2 rounded bg-gray-900 px-3 py-2 text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg whitespace-pre-line">
+                              {fileConversion.error}
+                            </span>
+                          )}
+                        </span>
                       </div>
                     )}
                   </div>
