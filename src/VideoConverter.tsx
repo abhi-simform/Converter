@@ -281,7 +281,7 @@ const VideoConverter: React.FC = () => {
     }
   }
 
-  const [mintClass, setMintClass] = useState<boolean>(false)
+  const [abhishekClass, setAbhishekClass] = useState<boolean>(false)
 
   return (
     <div className='max-w-6xl mx-auto p-6 font-sans'>
@@ -332,7 +332,7 @@ const VideoConverter: React.FC = () => {
         </div>
         <button
           className='inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-indigo-400 to-purple-500 text-white rounded font-semibold text-sm shadow hover:-translate-y-0.5 hover:shadow-lg transition'
-          onClick={() => setMintClass(!mintClass)}>
+          onClick={() => setAbhishekClass(!abhishekClass)}>
           toggle
         </button>
         {uploadedFiles.length === 0 ? (
@@ -433,7 +433,7 @@ const VideoConverter: React.FC = () => {
           </div>
         )}
 
-        <div className={`p-6 bg-white border border-gray-200 rounded-xl shadow ${mintClass ? 'mint-class' : ''}`}>
+        <div className={`p-6 bg-white border border-gray-200 rounded-xl shadow ${abhishekClass ? 'abhishek-class' : ''}`}>
           <div className='flex items-center gap-3 mb-4'>
             {getStatusIcon()}
             <span className='text-base font-medium text-gray-800'>{conversionState.message}</span>
