@@ -278,13 +278,13 @@ const VideoConverter: React.FC = () => {
     switch (conversionState.phase) {
       case 'loading':
       case 'converting':
-        return <Loader2 className="w-5 h-5 text-indigo-500 animate-spin" />;
+        return <Loader2 className="w-[20px] h-5 text-indigo-500 animate-spin" />;
       case 'completed':
-        return <CheckCircle className="w-5 h-5 text-green-600" />;
+        return <CheckCircle className="w-[20px] h-5 text-green-600" />;
       case 'error':
-        return <AlertCircle className="w-5 h-5 text-red-500" />;
+        return <AlertCircle className="w-[20px] h-5 text-red-500" />;
       default:
-        return <FileVideo className="w-5 h-5 text-indigo-500" />;
+        return <FileVideo className="w-[20px] h-5 text-indigo-500" />;
     }
   };
 
