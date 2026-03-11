@@ -1,3 +1,5 @@
+Description: This file describes the frontend code review guidelines and best practices for the project. Copilot will use this as a reference when reviewing frontend code in PRs, and contributors should ensure their code adheres to these guidelines.
+
 applyTo: "**/*,**"
 
 # Frontend Code Review Guidelines & Best Practices
@@ -74,23 +76,120 @@ const colorMap = { red: 'bg-red-500', blue: 'bg-blue-500' };
 **No Conflicting or Duplicate Classes**
 Avoid applying contradictory utilities to the same element (e.g., `text-sm text-lg`, `flex block`). Use `tailwind-merge` (via `cn()`) to resolve conflicts programmatically.
 
+```tsx
+// ❌ Avoid — conflicting display and text size utilities
+<div className="flex block text-sm text-lg font-bold font-normal">
+
+// ✅ Use cn() / tailwind-merge — last value wins, conflicts are resolved
+<div className={cn("flex text-sm font-normal", isLarge && "text-lg", isBold && "font-bold")}>
+```
+
 **Mobile-First Responsive Design**
 Always write base styles for mobile, then layer responsive prefixes for larger screens (`sm:`, `md:`, `lg:`, `xl:`). Never write desktop-first overrides.
+
+```tsx
+// ❌ Avoid — desktop-first, requires undoing styles for mobile
+<div className="flex-row lg:flex-col p-8 lg:p-4 text-lg lg:text-sm">
+
+// ✅ Mobile-first — base is mobile, larger screens override progressively
+<div className="flex-col p-4 text-sm md:flex-row md:p-8 md:text-lg">
+```
 
 **Use `cn()` for Conditional and Composed Classes**
 Always use the project's `cn()` utility (or `clsx` + `tailwind-merge`) to handle conditional class logic. Never use raw string concatenation or ternaries with class strings.
 
+```tsx
+// ❌ Avoid — string concatenation, no conflict resolution
+<button className={"px-4 py-2 rounded " + (isPrimary ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-800")}>
+
+// ❌ Avoid — nested ternaries become unreadable quickly
+<button className={`px-4 py-2 ${isLarge ? "text-lg" : "text-sm"} ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}>
+
+// ✅ Use cn() — readable, merge-safe, and easy to extend
+<button className={cn(
+  "px-4 py-2 rounded font-medium transition-colors",
+  isPrimary ? "bg-blue-500 text-white hover:bg-blue-600" : "bg-gray-100 text-gray-800 hover:bg-gray-200",
+  isLarge && "text-lg px-6 py-3",
+  isDisabled && "opacity-50 cursor-not-allowed pointer-events-none"
+)}>
+```
+
 **No `style={{}}` for Static Values**
 Avoid inline `style` props for values that could be expressed as Tailwind classes.
+
+```tsx
+// ❌ Avoid — bypasses the design system, not purgeable, not responsive
+<div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#374151' }}>
+
+// ✅ Use Tailwind utilities
+<div className="flex items-center gap-2 text-gray-700">
+
+// Exception — genuinely dynamic values that cannot be known at build time:
+<div style={{ width: `${progressPercent}%` }} className="h-2 bg-blue-500 rounded-full">
+```
 
 **Dark Mode Variants**
 When the application supports dark mode, every color-related class must have a corresponding `dark:` variant — or use semantic tokens (see shadcn/ui section) that handle this automatically.
 
+```tsx
+// ❌ Avoid — hardcoded colors with no dark mode consideration
+<div className="bg-white text-gray-900 border border-gray-200">
+  <p className="text-gray-500">Subtitle</p>
+</div>
+
+// ✅ Option A — manual dark: variants
+<div className="bg-white text-gray-900 border border-gray-200 dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700">
+  <p className="text-gray-500 dark:text-gray-400">Subtitle</p>
+</div>
+
+// ✅ Option B (preferred with shadcn) — semantic tokens handle dark mode automatically
+<div className="bg-background text-foreground border border-border">
+  <p className="text-muted-foreground">Subtitle</p>
+</div>
+```
+
 **Avoid `!important` Overrides**
 Frequent use of the `!` prefix (e.g., `!text-red-500`) signals an underlying specificity problem. Resolve the root cause rather than forcing overrides.
 
+```tsx
+// ❌ Avoid — forcing !important is a symptom, not a fix
+<p className="!text-red-500 !font-bold !mt-0">Error message</p>
+
+// ❌ Also avoid — fighting a third-party component with overrides
+<ThirdPartyCard className="!bg-white !shadow-none" />
+
+// ✅ Fix the root cause — use cn() to ensure the right class wins via tailwind-merge
+<p className={cn("text-gray-700", hasError && "text-red-500 font-bold", "mt-0")}>
+
+// ✅ For third-party components — wrap and apply styles at the correct DOM level
+<div className="[&_.card]:bg-white [&_.card]:shadow-none">
+  <ThirdPartyCard />
+</div>
+```
+
 **Organize Classes Consistently**
 Long class strings should follow a consistent order: layout → spacing → sizing → typography → color → border → shadow → state → responsive. Use `cn()` with logical groups for readability.
+
+```tsx
+// ❌ Avoid — random order, hard to scan for conflicts or missing properties
+<div className="text-white hover:bg-blue-600 flex p-4 rounded-lg font-semibold bg-blue-500 w-full shadow-md items-center text-sm gap-2 justify-between border border-blue-400">
+
+// ✅ Organized by concern — easy to scan, audit, and extend
+<div className={cn(
+  // Layout & alignment
+  "flex items-center justify-between gap-2",
+  // Spacing & sizing
+  "w-full p-4",
+  // Typography
+  "text-sm font-semibold",
+  // Color
+  "bg-blue-500 text-white",
+  // Border & shadow
+  "rounded-lg border border-blue-400 shadow-md",
+  // Interactive states
+  "hover:bg-blue-600 transition-colors",
+)}>
+```
 
 ---
 
