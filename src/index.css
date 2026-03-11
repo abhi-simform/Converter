@@ -1,1 +1,5 @@
 @import "tailwindcss";
+
+.temp-class {
+  background-color: #f0f0f0;
+}
