@@ -288,6 +288,8 @@ const VideoConverter: React.FC = () => {
     }
   };
 
+  const [tempClass, setTempClass] = useState<boolean>(false);
+
   return (
     <div className="max-w-6xl mx-auto p-6 font-sans">
       <div className="text-center mb-8">
@@ -434,7 +436,7 @@ const VideoConverter: React.FC = () => {
           </div>
         )}
 
-        <div className="p-6 bg-white border border-gray-200 rounded-xl shadow">
+        <div className={`p-6 bg-white border border-gray-200 rounded-xl shadow ${tempClass ? 'temp-class' : ''}`}>
           <div className="flex items-center gap-3 mb-4">
             {getStatusIcon()}
             <span className="text-base font-medium text-gray-800">{conversionState.message}</span>
