@@ -338,7 +338,7 @@ const VideoConverter: React.FC = () => {
             ))}
           </div>
         </div>
-
+<button onClick={() => setTempClass(!tempClass)}>toggle</button>
         {uploadedFiles.length === 0 ? (
           <div
             {...getRootProps()}
