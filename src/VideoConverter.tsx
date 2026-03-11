@@ -387,7 +387,7 @@ const VideoConverter: React.FC = () => {
                       </div>
                     )}
                     {fileConversion.status === 'error' && (
-                      <div className="flex items-center gap-2 text-red-500">
+                      <div className={`flex items-center gap-2 text-red-500 ${fileConversion.error ? 'cursor-help' : ''}`}>
                         <AlertCircle className="w-5 h-5" />
                         <span className="relative group cursor-help">
                           Error
